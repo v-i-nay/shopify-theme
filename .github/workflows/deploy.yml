@@ -1,0 +1,33 @@
+name: Deploy Shopify Theme
+
+on:
+  push:
+    branches:
+      - staging   # Trigger on push to the staging branch
+      - production # Trigger on push to the production branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Zip theme files
+        run: |
+          zip -r theme.zip .
+
+      - name: Upload theme to Shopify
+        env:
+          SHOPIFY_PASSWORD: ${{ secrets.SHOPIFY_PASSWORD }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          THEME_ID: ${{ github.ref == 'refs/heads/staging' && secrets.SHOPIFY_STAGING_THEME_ID || secrets.SHOPIFY_PRODUCTION_THEME_ID }}
+        run: |
+          curl -X PUT \
+            "https://$SHOPIFY_STORE/admin/api/2023-10/themes/$THEME_ID/assets.json" \
+            -H "X-Shopify-Access-Token: $SHOPIFY_PASSWORD" \
+            -F "asset[attachment]=@theme.zip" \
+            -F "asset[key]=templates/theme.zip"
+
+            
