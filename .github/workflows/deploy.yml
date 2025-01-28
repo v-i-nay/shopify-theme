@@ -29,3 +29,5 @@ jobs:
             -H "X-Shopify-Access-Token: $SHOPIFY_PASSWORD" \
             -F "asset[attachment]=@theme.zip" \
             -F "asset[key]=templates/theme.zip"
+
+            
